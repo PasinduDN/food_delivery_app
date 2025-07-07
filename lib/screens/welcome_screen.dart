@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food_delivery_app/screens/login_screen.dart';
 
 // This screen will be the first thing users see.
 class WelcomeScreen extends StatelessWidget {
@@ -78,7 +79,10 @@ class WelcomeScreen extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () {
                         // TODO: Navigate to Sign In screen
-                        print('Sign In pressed!');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const LoginScreen()),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange, // Background color

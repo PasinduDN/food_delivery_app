@@ -1,0 +1,59 @@
+import 'package:food_delivery_app/models/food_item.dart';
+
+final List<FoodItem> dummyFoodItems = [
+  FoodItem(
+    id: 'f1',
+    name: 'Masala Curry',
+    imageUrl: 'assets/images/masala_curry.png', // Need this image
+    price: 25.00,
+    rating: 4.8,
+    reviews: 48,
+    description: 'A rich and flavorful curry with aromatic spices.',
+  ),
+  FoodItem(
+    id: 'f2',
+    name: 'Hot Egg Masala',
+    imageUrl: 'assets/images/hot_egg_masala.png', // Need this image
+    price: 30.00,
+    rating: 5.0,
+    reviews: 52,
+    description: 'Spicy egg curry, perfect for a quick meal.',
+  ),
+  FoodItem(
+    id: 'f3',
+    name: 'Grilled Salmon',
+    imageUrl: 'assets/images/grilled_salmon.png', // Need this image
+    price: 96.00,
+    rating: 4.5,
+    reviews: 120,
+    description: 'Perfectly grilled salmon with a hint of lemon and herbs.',
+  ),
+  FoodItem(
+    id: 'f4',
+    name: 'Fried Egg',
+    imageUrl: 'assets/images/fried_egg.png', // Need this image
+    price: 15.30,
+    rating: 4.2,
+    reviews: 35,
+    description: 'A classic fried egg, simple yet delicious.',
+  ),
+  FoodItem(
+    id: 'f5',
+    name: 'Mixed Vegetable',
+    imageUrl: 'assets/images/mixed_vegetable.png', // Need this image
+    price: 17.03,
+    rating: 4.0,
+    reviews: 40,
+    description: 'A healthy mix of fresh seasonal vegetables.',
+  ),
+  FoodItem(
+    id: 'f6',
+    name: 'Whole Roasted Chicken',
+    imageUrl: 'assets/images/roasted_chicken.png', // Need this image
+    price: 120.00,
+    rating: 4.9,
+    reviews: 200,
+    description: 'Juicy and tender roasted chicken, perfect for family dinners.',
+  ),
+  // Add more items as needed based on your UI images
+];

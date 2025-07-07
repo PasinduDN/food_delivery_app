@@ -30,6 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  
+  provider: ^6.0.5 # Use the latest version available
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -59,6 +61,15 @@ flutter:
 
   assets:
     - assets/images/delivery_guy.png
+    - assets/images/hello_food_logo.jpg
+    - assets/images/masala_curry.jpg
+    - assets/images/hot_egg_masala.jpg
+    - assets/images/grilled_salmon.jpg
+    - assets/images/fried_egg.jpg
+    - assets/images/mixed_vegetable.jpg
+    - assets/images/roasted_chicken.jpg
+    - assets/images/discount_bg.png
+    - assets/images/food_plate_small.jpg
 
   # To add assets to your application, add an assets section, like this:
   # assets:
