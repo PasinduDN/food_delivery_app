@@ -18,7 +18,7 @@ class WelcomeScreen extends StatelessWidget {
             children: [
               // Placeholder for your image (the delivery guy)
               Image.asset(
-                'assets/delivery_guy.png', // We'll add this image later
+                'assets/images/roasted_chicken.jpg', // We'll add this image later
                 height: 250,
               ),
               const SizedBox(height: 40), // Space between image and title

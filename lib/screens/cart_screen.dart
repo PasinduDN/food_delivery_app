@@ -3,24 +3,36 @@ import 'package:food_delivery_app/providers/cart_provider.dart';
 import 'package:provider/provider.dart';
 
 class CartScreen extends StatelessWidget {
-  const CartScreen({super.key});
+  // New property: true if this screen was pushed onto the navigation stack
+  // False (by default) if it's displayed as a tab within an IndexedStack.
+  final bool isPushedRoute;
+
+  const CartScreen({super.key, this.isPushedRoute = false}); // Default value is false
 
   @override
   Widget build(BuildContext context) {
-    // Consumer rebuilds only when CartProvider notifies listeners
+    // Consumer widget rebuilds its child whenever the CartProvider notifies a change.
     return Consumer<CartProvider>(
       builder: (context, cart, child) {
         return Scaffold(
           appBar: AppBar(
             title: const Text('Item Carts', style: TextStyle(color: Colors.black)),
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
+            backgroundColor: Colors.transparent, // Transparent background
+            elevation: 0, // No shadow
+            // -------------------------------------------------------------
+            // !!! CONDITIONAL LEADING BUTTON LOGIC !!!
+            // Display a back button ONLY if 'isPushedRoute' is true.
+            // If it's a tab (isPushedRoute is false), then `leading` is null,
+            // meaning no back button will appear.
+            leading: isPushedRoute
+                ? IconButton(
+                    icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+                    onPressed: () {
+                      Navigator.pop(context); // Correctly pops this pushed route
+                    },
+                  )
+                : null, // If it's a tab, no back button
+            // -------------------------------------------------------------
           ),
           body: cart.items.isEmpty
               ? const Center(
@@ -134,7 +146,7 @@ class CartScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                          const Divider(), // A line separator
+                          const Divider(),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -143,7 +155,7 @@ class CartScreen extends StatelessWidget {
                                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                               ),
                               Text(
-                                '\$${(cart.totalAmount + 5.00).toStringAsFixed(2)}', // Total + delivery
+                                '\$${(cart.totalAmount + 5.00).toStringAsFixed(2)}',
                                 style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.orange),
                               ),
                             ],
@@ -152,16 +164,18 @@ class CartScreen extends StatelessWidget {
                           ElevatedButton(
                             onPressed: () {
                               print('Proceed to Payment!');
-                              // TODO: Implement payment gateway integration
-                              // For now, clear cart and show a message
                               cart.clearCart();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Order Placed Successfully!')),
                               );
-                              Navigator.pop(context); // Go back after order
+                              // If this CartScreen was a pushed route, pop it after completing the order.
+                              if (isPushedRoute) {
+                                Navigator.pop(context);
+                              }
+                              // If it's a tab, we don't pop. The user is expected to switch tabs manually.
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).primaryColor, // Orange
+                              backgroundColor: Theme.of(context).primaryColor,
                               padding: const EdgeInsets.symmetric(vertical: 18),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
@@ -177,8 +191,8 @@ class CartScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+            );
+          },
         );
-      },
-    );
-  }
-}
+      }
+    }
