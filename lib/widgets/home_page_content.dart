@@ -1,11 +1,90 @@
-// lib/widgets/home_page_content.dart
+// food_delivery_app/lib/widgets/home_page_content.dart
 import 'package:flutter/material.dart';
-import 'package:food_delivery_app/data/dummy_data.dart';
 import 'package:food_delivery_app/screens/food_detail_screen.dart';
 import 'package:food_delivery_app/widgets/food_card.dart';
+import 'package:food_delivery_data/food_delivery_data.dart';
 
-class HomePageContent extends StatelessWidget {
+class HomePageContent extends StatefulWidget {
   const HomePageContent({super.key});
+
+  @override
+  State<HomePageContent> createState() => _HomePageContentState();
+}
+
+class _HomePageContentState extends State<HomePageContent> {
+  final FoodRepository _foodRepository = FoodRepository();
+  List<FoodItem> _displayedFoods = [];
+  final TextEditingController _searchController = TextEditingController();
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  // Sample categories (ensure these match your Firestore categories exactly!)
+  // Using a full list of example categories.
+  final List<String> _categories = [
+    'All', 'Pizza', 'Burger', 'Chicken', 'Drinks', 'Desserts',
+    'Indian', 'Seafood', 'Curry', 'Fast Food', 'Vegetarian', 'Vegan', 'Appetizers' // Example additions
+  ];
+  String _selectedCategory = 'All';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAndApplyFilters();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchAndApplyFilters() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+      _displayedFoods = [];
+    });
+    try {
+      final List<FoodItem> fetchedFoods = await _foodRepository.getAllFoods(
+        category: _selectedCategory != 'All' ? _selectedCategory : null,
+      );
+
+      if (_searchController.text.isNotEmpty) {
+        _displayedFoods = fetchedFoods.where((food) {
+          return food.name.toLowerCase().contains(_searchController.text.toLowerCase());
+        }).toList();
+      } else {
+        _displayedFoods = fetchedFoods;
+      }
+
+      setState(() {
+        // State update will trigger rebuild
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Failed to load foods: ${e.toString().split(':')[1].trim()}';
+        print('Error fetching foods: $e');
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _onSearchChanged() {
+    _fetchAndApplyFilters();
+  }
+
+  void _onCategorySelected(String category) {
+    setState(() {
+      _selectedCategory = category;
+      _searchController.clear(); // Clear search when category changes for cleaner filter
+    });
+    _fetchAndApplyFilters();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,8 +120,9 @@ class HomePageContent extends StatelessWidget {
               children: [
                 Expanded(
                   child: TextField(
+                    controller: _searchController,
                     decoration: InputDecoration(
-                      hintText: 'Search our delicious burgers',
+                      hintText: 'Search our delicious foods',
                       prefixIcon: const Icon(Icons.search),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -70,7 +150,41 @@ class HomePageContent extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 20),
+          // --- UPDATED: Category Bar using Wrap instead of SizedBox with ListView.builder ---
+          Padding( // Added Padding to ensure categories wrap within screen bounds
+            padding: const EdgeInsets.symmetric(horizontal: 16.0), // Adjust padding as needed
+            child: Wrap(
+              spacing: 8.0, // Horizontal space between chips
+              runSpacing: 8.0, // Vertical space between lines of chips
+              children: _categories.map((category) {
+                final isSelected = category == _selectedCategory;
+                return ChoiceChip(
+                  label: Text(category),
+                  selected: isSelected,
+                  selectedColor: Theme.of(context).primaryColor.withOpacity(0.2),
+                  onSelected: (selected) {
+                    if (selected) {
+                      _onCategorySelected(category);
+                    }
+                  },
+                  labelStyle: TextStyle(
+                    color: isSelected ? Theme.of(context).primaryColor : Colors.grey[700],
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: BorderSide(
+                      color: isSelected ? Theme.of(context).primaryColor : Colors.grey[400]!,
+                    ),
+                  ),
+                  backgroundColor: Colors.white,
+                  elevation: 1, // Adds a slight shadow to chips
+                );
+              }).toList(),
+            ),
+          ),
+          const SizedBox(height: 20), // Spacing after categories
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.0),
             child: Text(
@@ -84,25 +198,37 @@ class HomePageContent extends StatelessWidget {
           const SizedBox(height: 15),
           SizedBox(
             height: 220,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              itemCount: dummyFoodItems.length,
-              itemBuilder: (context, index) {
-                final food = dummyFoodItems[index];
-                return FoodCard(
-                  foodItem: food,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => FoodDetailScreen(foodItem: food),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _errorMessage != null
+                    ? Center(child: Text(_errorMessage!))
+                    : _displayedFoods.isEmpty
+                        ? Center(
+                            child: Text(
+                              _searchController.text.isNotEmpty || _selectedCategory != 'All'
+                                  ? 'No matching foods found for your search/category.'
+                                  : 'No foods available. Please add some in Firestore with category fields.',
+                            ),
+                          )
+                        : ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                            itemCount: _displayedFoods.length,
+                            itemBuilder: (context, index) {
+                              final food = _displayedFoods[index];
+                              return FoodCard(
+                                foodItem: food,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => FoodDetailScreen(foodItem: food),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          ),
           ),
           const SizedBox(height: 30),
           Padding(

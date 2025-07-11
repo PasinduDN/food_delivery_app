@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:food_delivery_app/models/food_item.dart';
+// import 'package:food_delivery_app/models/food_item.dart';
+import 'package:food_delivery_data/food_delivery_data.dart'; // Import from your shared package
 
 class FoodCard extends StatelessWidget {
   final FoodItem foodItem;

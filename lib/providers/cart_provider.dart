@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart'; // For ChangeNotifier
-import 'package:food_delivery_app/models/food_item.dart';
+// import 'package:food_delivery_app/models/food_item.dart';
+import 'package:food_delivery_data/food_delivery_data.dart';
 
 // Represents an item added to the cart
 class CartItem {
